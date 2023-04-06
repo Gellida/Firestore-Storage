@@ -26,6 +26,7 @@ class ImagesAdapter(private var mList: List<String>) :
             with(mList[position]){
                 Picasso.get().load(this).into(imagePreview)
             }
+
         }
     }
 

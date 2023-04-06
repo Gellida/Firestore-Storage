@@ -20,9 +20,7 @@ class DashboardFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var firebaseFirestore : FirebaseFirestore
     private var mList = mutableListOf<String>()
-    //private var mList = mutableListOf<Task>()
     private lateinit var adapter: ImagesAdapter
-    //private lateinit var adapter: TaskAdapter
     private val TAG = "DashboardFragment"
 
     override fun onCreateView(
@@ -50,7 +48,6 @@ class DashboardFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = ImagesAdapter(mList)
-        //adapter = TaskAdapter(mList)
         binding.recyclerView.adapter = adapter
 
     }
@@ -60,10 +57,11 @@ class DashboardFragment : Fragment() {
         firebaseFirestore.collection("Images")
             .get().addOnSuccessListener {
                 for (i in it){
-                    mList.add(i.data["picture"].toString())
+                    mList.add(i.data["downloadUrl"].toString())
                 }
                 adapter.notifyDataSetChanged()
             }
+
 
          /*
         firebaseFirestore.collection("Tasks")

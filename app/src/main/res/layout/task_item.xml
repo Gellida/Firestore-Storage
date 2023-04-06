@@ -15,7 +15,7 @@
             android:layout_height="200dp"
             android:src="@drawable/ic_success"
             android:scaleType="centerCrop"/>
-
+        <!--
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:text="Descripción"
             android:textSize="14sp"
-            android:padding="8dp"/>
+            android:padding="8dp"/>-->
 
 
 

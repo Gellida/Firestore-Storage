@@ -18,12 +18,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.firestore.databinding.FragmentHomeBinding
+import com.example.firestore.ui.dashboard.MyService
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -109,8 +112,7 @@ class HomeFragment : Fragment() {
         binding.btnRecover.setOnClickListener {
             db.collection("Tasks").document(binding.titulo.text.toString()).get()
                 .addOnSuccessListener {
-                    binding.titulo.setText(it.get("nombre") as String?)
-                    binding.descripcion.setText(it.get("descripcion") as String?)
+                    binding.descripcion.setText(it.get("description") as String?)
                 }
         }
         binding.btnEliminar.setOnClickListener {
@@ -129,8 +131,12 @@ class HomeFragment : Fragment() {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
             // Aquí puedes guardar la imagen en el Storage de Firebase
-            Toast.makeText(requireContext(),"Si se llegó hasta antes del guardado",Toast.LENGTH_LONG).show()
             binding.ivCamera.setImageBitmap(imageBitmap)
+
+            //Uso de corrutinas para mejorar el perfomance
+            lifecycleScope.launch {
+                uploadImageToFirebase(imageBitmap)
+            }
             uploadImageToFirebase(imageBitmap)
         }
     }
@@ -138,7 +144,7 @@ class HomeFragment : Fragment() {
         // Crea una referencia al archivo en el almacenamiento de Firebase
         val imageRef = storageRef.child("camera/${UUID.randomUUID()}.jpg")
 
-        // Convierte el Bitmap en bytes
+
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
@@ -149,7 +155,6 @@ class HomeFragment : Fragment() {
             // La imagen se ha subido correctamente, obtén la URL de descarga
             val downloadUrl = taskSnapshot.metadata?.reference?.downloadUrl
 
-
             taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
                 val downloadUrl = uri.toString()
                 // Guarda la URL de descarga en Firestore
@@ -159,11 +164,24 @@ class HomeFragment : Fragment() {
                     "description" to binding.descripcion.text.toString(),
                     "downloadUrl" to imageUrl
                 )
+                val image = hashMapOf(
+                    "title" to binding.titulo.text.toString(),
+                    "description" to binding.descripcion.text.toString(),
+                    "downloadUrl" to imageUrl
+                )
 
-                firebaseFirestore.collection("Tasks").document("task"+binding.titulo.text.toString())
+                firebaseFirestore.collection("Tasks").document(binding.titulo.text.toString())
                     .set(task)
                     .addOnSuccessListener {
                         Toast.makeText(requireActivity(),"Guardado exitosamente",Toast.LENGTH_LONG).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG, "Error adding document", e)
+                    }
+                firebaseFirestore.collection("Images").document(binding.titulo.text.toString()+System.currentTimeMillis())
+                    .set(image)
+                    .addOnSuccessListener {
+                        Toast.makeText(requireActivity(),"Guardado en images",Toast.LENGTH_LONG).show()
                     }
                     .addOnFailureListener { e ->
                         Log.w(TAG, "Error adding document", e)
@@ -197,17 +215,30 @@ class HomeFragment : Fragment() {
                 taskSnapshot.storage.downloadUrl.addOnSuccessListener { uri ->
                     Log.d(TAG, "URL: $uri")
 
-                    //Upload image to firestore with path
+                    //Se sube la imagen a Firestore
                     val task = hashMapOf(
                         "title" to binding.titulo.text.toString(),
                         "description" to binding.descripcion.text.toString(),
                         "downloadUrl" to uri.toString()
                     )
+                    val image = hashMapOf(
+                        "title" to binding.titulo.text.toString(),
+                        "description" to binding.descripcion.text.toString(),
+                        "downloadUrl" to uri.toString()
+                    )
 
-                    firebaseFirestore.collection("Tasks").document("task"+binding.titulo.text.toString())
+                    firebaseFirestore.collection("Tasks").document(binding.titulo.text.toString())
                         .set(task)
                         .addOnSuccessListener {
                             Toast.makeText(requireActivity(),"Guardado exitosamente",Toast.LENGTH_LONG).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(TAG, "Error adding document", e)
+                        }
+                    firebaseFirestore.collection("Images").document(binding.titulo.text.toString()+System.currentTimeMillis())
+                        .set(image)
+                        .addOnSuccessListener {
+                            Toast.makeText(requireActivity(),"Guardado Images",Toast.LENGTH_LONG).show()
                         }
                         .addOnFailureListener { e ->
                             Log.w(TAG, "Error adding document", e)

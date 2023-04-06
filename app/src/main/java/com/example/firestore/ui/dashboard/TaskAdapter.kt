@@ -24,7 +24,6 @@ class TaskAdapter(private var mList: MutableList<Task>) :
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         with(holder.binding) {
             val task = mList[position]
-            holder.binding.title.text = task.title
             //holder.binding.description.text = task.description
             //Picasso.get().load(task.imageUrl).into(imagePreview)
         }
