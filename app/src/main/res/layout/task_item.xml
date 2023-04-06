@@ -2,12 +2,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:elevation="2dp"
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/image_preview"
@@ -15,23 +18,33 @@
             android:layout_height="200dp"
             android:src="@drawable/ic_success"
             android:scaleType="centerCrop"/>
-        <!--
+
+
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:text="Titulo"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:padding="8dp"/>
+            android:textStyle="bold" />
 
+        <!-- Descripción -->
         <TextView
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Descripción"
             android:textSize="14sp"
-            android:padding="8dp"/>-->
+            android:paddingTop="8dp"
+            android:text="Descripción"
+            android:paddingBottom="8dp" />
+
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:layout_marginTop="8dp" />
 
 
 

@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.firestore.databinding.FragmentHomeBinding
+import com.example.firestore.ui.dashboard.DriveService
 import com.example.firestore.ui.dashboard.MyService
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
@@ -39,7 +40,6 @@ class HomeFragment : Fragment() {
     private lateinit var storageRef: StorageReference
     private lateinit var firebaseFirestore: FirebaseFirestore
     private var imageUri: Uri? = null
-    private var photoUri: Uri? = null
 
     private val TAG = "HomeFragment"
 
@@ -94,7 +94,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-
         //Botón para guardar una imagen precargada con drive
         binding.btnSave.setOnClickListener {
             uploadImageDriveToStorage()
@@ -103,10 +102,6 @@ class HomeFragment : Fragment() {
         binding.btnService.setOnClickListener {
             val intent = Intent(requireContext(), MyService::class.java)
             activity?.startService(intent)
-        }
-        binding.btnServiceStop.setOnClickListener {
-            val intent = Intent(requireContext(), MyService::class.java)
-            activity?.stopService(intent)
         }
 
         binding.btnRecover.setOnClickListener {
@@ -137,7 +132,6 @@ class HomeFragment : Fragment() {
             lifecycleScope.launch {
                 uploadImageToFirebase(imageBitmap)
             }
-            uploadImageToFirebase(imageBitmap)
         }
     }
     private fun uploadImageToFirebase(bitmap: Bitmap) {
@@ -159,6 +153,7 @@ class HomeFragment : Fragment() {
                 val downloadUrl = uri.toString()
                 // Guarda la URL de descarga en Firestore
                 val imageUrl = downloadUrl.toString()
+
                 val task = hashMapOf(
                     "title" to binding.titulo.text.toString(),
                     "description" to binding.descripcion.text.toString(),
@@ -190,7 +185,6 @@ class HomeFragment : Fragment() {
                 // Handle any errors
             }
 
-
         }.addOnFailureListener {
             // Si hay algún error en la subida, muestra un mensaje de error
             Toast.makeText(requireContext(), "Error al subir la imagen.", Toast.LENGTH_SHORT).show()
@@ -207,47 +201,10 @@ class HomeFragment : Fragment() {
 
     private fun uploadImageDriveToStorage() {
         if (imageUri != null) {
-            val imagesRef = storageRef.child("drive/${imageUri!!.lastPathSegment}")
-            val uploadTask = imagesRef.putFile(imageUri!!)
-
-            uploadTask.addOnSuccessListener { taskSnapshot ->
-                Log.d(TAG, "Image uploaded successfully: ${taskSnapshot.metadata?.path}")
-                taskSnapshot.storage.downloadUrl.addOnSuccessListener { uri ->
-                    Log.d(TAG, "URL: $uri")
-
-                    //Se sube la imagen a Firestore
-                    val task = hashMapOf(
-                        "title" to binding.titulo.text.toString(),
-                        "description" to binding.descripcion.text.toString(),
-                        "downloadUrl" to uri.toString()
-                    )
-                    val image = hashMapOf(
-                        "title" to binding.titulo.text.toString(),
-                        "description" to binding.descripcion.text.toString(),
-                        "downloadUrl" to uri.toString()
-                    )
-
-                    firebaseFirestore.collection("Tasks").document(binding.titulo.text.toString())
-                        .set(task)
-                        .addOnSuccessListener {
-                            Toast.makeText(requireActivity(),"Guardado exitosamente",Toast.LENGTH_LONG).show()
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w(TAG, "Error adding document", e)
-                        }
-                    firebaseFirestore.collection("Images").document(binding.titulo.text.toString()+System.currentTimeMillis())
-                        .set(image)
-                        .addOnSuccessListener {
-                            Toast.makeText(requireActivity(),"Guardado Images",Toast.LENGTH_LONG).show()
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w(TAG, "Error adding document", e)
-                        }
-
-                }
-            }.addOnFailureListener { exception ->
-                Log.e(TAG, "Error uploading image", exception)
+            val intent = Intent(requireContext(), DriveService::class.java).apply {
+                putExtra("imageUri", imageUri)
             }
+            requireActivity().startService(intent)
         }
     }
 

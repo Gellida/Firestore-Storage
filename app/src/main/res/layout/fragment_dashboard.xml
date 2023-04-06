@@ -7,14 +7,48 @@
     tools:context=".ui.dashboard.DashboardFragment">
 
 
-
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/titulo" />
+
+    <TextView
+        android:id="@+id/titulo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="#24b9cc"
+        android:text="Task title"
+        android:elevation="4dp"
+        android:fontFamily="@font/montserrat_bold"
+        android:letterSpacing=".2"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="8sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
+
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/ic_add"
+        app:backgroundTint="#4ad295"
+        app:elevation="8dp"
+        app:fabSize="normal"
+        app:layout_anchorGravity="bottom|end"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_scrollFlags="scroll|enterAlways"
+        app:maxImageSize="32dp"
+        app:tint="@android:color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>

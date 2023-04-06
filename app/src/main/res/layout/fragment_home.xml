@@ -42,7 +42,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
+            <TextView
                 android:id="@+id/titulo"
                 android:layout_width="0dp"
                 android:layout_height="34dp"
@@ -107,17 +107,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btn_eliminar" />
 
-            <Button
-                android:id="@+id/btn_service_stop"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:backgroundTint="#4ad295"
-                android:fontFamily="@font/montserrat_semibold"
-                android:text="Parar servicio"
-                android:textColor="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_service" />
+
 
             <Button
                 android:id="@+id/btn_recover"
