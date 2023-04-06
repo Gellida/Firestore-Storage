@@ -54,11 +54,11 @@
                 android:elevation="4dp"
                 android:fontFamily="@font/montserrat_semibold"
                 android:lineSpacingExtra="16sp"
-                android:text="Descripcion"
+                android:paddingLeft="10sp"
+                android:text="Descripción"
                 android:textAlignment="viewStart"
                 android:textColor="@color/white"
                 android:textSize="18sp"
-                android:paddingLeft="10sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/titulo" />
@@ -66,7 +66,7 @@
 
 
             <Button
-                android:id="@+id/btn_camera"
+                android:id="@+id/btn_save"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="16dp"
@@ -80,6 +80,30 @@
                 app:layout_constraintTop_toBottomOf="@+id/descripcion" />
 
 
+            <Button
+                android:id="@+id/btn_service"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#4ad295"
+                android:fontFamily="@font/montserrat_semibold"
+                android:text="iniciar servicio"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btn_eliminar" />
+
+            <Button
+                android:id="@+id/btn_service_stop"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:backgroundTint="#4ad295"
+                android:fontFamily="@font/montserrat_semibold"
+                android:text="Parar servicio"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btn_service" />
 
             <Button
                 android:id="@+id/btn_recover"
@@ -92,7 +116,7 @@
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_camera" />
+                app:layout_constraintTop_toBottomOf="@+id/btn_save" />
 
             <Button
                 android:id="@+id/btn_eliminar"
@@ -109,7 +133,7 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="60dp"
+                android:layout_width="80dp"
                 android:layout_height="120dp"
                 android:layout_marginTop="8dp"
                 android:src="@drawable/ic_drive"
@@ -117,11 +141,11 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="60dp"
+                android:id="@+id/iv_camera"
+                android:layout_width="80dp"
                 android:layout_height="120dp"
                 android:layout_marginTop="8dp"
-                android:src="@drawable/ic_agenda"
+                android:src="@drawable/camera"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 

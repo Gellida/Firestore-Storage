@@ -1,5 +1,6 @@
 package com.example.firestore.ui.home
 
+import android.Manifest
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,44 +13,37 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import android.Manifest
-import android.graphics.BitmapFactory
-import androidx.core.net.toUri
-import com.example.firestore.R
 import com.example.firestore.databinding.FragmentHomeBinding
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import java.io.File
-import java.io.FileOutputStream
-import kotlin.math.log
+import java.io.ByteArrayOutputStream
+import java.util.*
 
-private const val REQUEST_IMAGE_CAPTURE = 1
+
+private const val REQUEST_IMAGE_CAPTURE = 1;
+private const val REQUEST_FROM_CAMERA = 1001;
 
 class HomeFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
-    private lateinit var storageRef : StorageReference
-    private lateinit var firebaseFirestore : FirebaseFirestore
-    private var imageUri : Uri? = null
+    private lateinit var storageRef: StorageReference
+    private lateinit var firebaseFirestore: FirebaseFirestore
+    private var imageUri: Uri? = null
+    private var photoUri: Uri? = null
 
     private val TAG = "HomeFragment"
-
 
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val cameraLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val imageBitmap = result.data?.extras?.get("data") as Bitmap?
-                binding.imageView2.setImageBitmap(imageBitmap)
-
-            }
-        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,158 +62,160 @@ class HomeFragment : Fragment() {
             textView.text = it
         }
 
+
         return root
     }
+    private fun initVars() {
+        storageRef = FirebaseStorage.getInstance().reference.child("Images")
+        firebaseFirestore = FirebaseFirestore.getInstance()
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
-    private fun registerClickEvents(){
-        binding.btnCamera.setOnClickListener {
-            uploadImage()
+    private fun registerClickEvents() {
+        binding.imageView.setOnClickListener {
+            resultLauncher.launch("image/*")
         }
-        binding.imageView2.setOnClickListener {
-            if (requireActivity().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_IMAGE_CAPTURE)
+
+        binding.ivCamera.setOnClickListener {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                // Permiso concedido, podemos tomar la foto
+                takePhoto()
             } else {
-                dispatchTakePictureIntent()
+                // Permiso no concedido, solicitar permiso
+                ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), REQUEST_FROM_CAMERA)
             }
         }
 
+
+        //Botón para guardar una imagen precargada con drive
+        binding.btnSave.setOnClickListener {
+            uploadImageDriveToStorage()
+        }
+
+        binding.btnService.setOnClickListener {
+            val intent = Intent(requireContext(), MyService::class.java)
+            activity?.startService(intent)
+        }
+        binding.btnServiceStop.setOnClickListener {
+            val intent = Intent(requireContext(), MyService::class.java)
+            activity?.stopService(intent)
+        }
+
         binding.btnRecover.setOnClickListener {
-            db.collection("Tasks").document(binding.titulo.text.toString()).get().addOnSuccessListener {
-                binding.titulo.setText(it.get("nombre") as String?)
-                binding.descripcion.setText(it.get("descripcion") as String?)
-            }
+            db.collection("Tasks").document(binding.titulo.text.toString()).get()
+                .addOnSuccessListener {
+                    binding.titulo.setText(it.get("nombre") as String?)
+                    binding.descripcion.setText(it.get("descripcion") as String?)
+                }
         }
         binding.btnEliminar.setOnClickListener {
             db.collection("Tasks").document(binding.titulo.text.toString()).delete()
         }
-        binding.imageView.setOnClickListener {
-            resultLauncher.launch("image/*")
+    }
+    private fun takePhoto() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+    }
+
+
+    // Método para recibir la imagen capturada
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            // Aquí puedes guardar la imagen en el Storage de Firebase
+            Toast.makeText(requireContext(),"Si se llegó hasta antes del guardado",Toast.LENGTH_LONG).show()
+            binding.ivCamera.setImageBitmap(imageBitmap)
+            uploadImageToFirebase(imageBitmap)
+        }
+    }
+    private fun uploadImageToFirebase(bitmap: Bitmap) {
+        // Crea una referencia al archivo en el almacenamiento de Firebase
+        val imageRef = storageRef.child("camera/${UUID.randomUUID()}.jpg")
+
+        // Convierte el Bitmap en bytes
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+
+        // Sube la imagen a Firebase
+        val uploadTask = imageRef.putBytes(data)
+        uploadTask.addOnSuccessListener { taskSnapshot ->
+            // La imagen se ha subido correctamente, obtén la URL de descarga
+            val downloadUrl = taskSnapshot.metadata?.reference?.downloadUrl
+
+
+            taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
+                val downloadUrl = uri.toString()
+                // Guarda la URL de descarga en Firestore
+                val imageUrl = downloadUrl.toString()
+                val task = hashMapOf(
+                    "title" to binding.titulo.text.toString(),
+                    "description" to binding.descripcion.text.toString(),
+                    "downloadUrl" to imageUrl
+                )
+
+                firebaseFirestore.collection("Tasks").document("task"+binding.titulo.text.toString())
+                    .set(task)
+                    .addOnSuccessListener {
+                        Toast.makeText(requireActivity(),"Guardado exitosamente",Toast.LENGTH_LONG).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG, "Error adding document", e)
+                    }
+            }?.addOnFailureListener { exception ->
+                // Handle any errors
+            }
+
+
+        }.addOnFailureListener {
+            // Si hay algún error en la subida, muestra un mensaje de error
+            Toast.makeText(requireContext(), "Error al subir la imagen.", Toast.LENGTH_SHORT).show()
         }
     }
 
     private val resultLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()){
+        ActivityResultContracts.GetContent()
+    ) {
         imageUri = it
         binding.imageView.setImageURI(it)
     }
 
-    private fun initVars(){
-        storageRef = FirebaseStorage.getInstance().reference.child("Images")
-        firebaseFirestore = FirebaseFirestore.getInstance()
-    }
 
+    private fun uploadImageDriveToStorage() {
+        if (imageUri != null) {
+            val imagesRef = storageRef.child("drive/${imageUri!!.lastPathSegment}")
+            val uploadTask = imagesRef.putFile(imageUri!!)
 
-    private fun dispatchTakePictureIntent() {
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        cameraLauncher.launch(takePictureIntent)
-    }
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                dispatchTakePictureIntent()
-            } else {
-                Log.i(TAG,"Permisos denegados")
-            }
-        }
-    }
+            uploadTask.addOnSuccessListener { taskSnapshot ->
+                Log.d(TAG, "Image uploaded successfully: ${taskSnapshot.metadata?.path}")
+                taskSnapshot.storage.downloadUrl.addOnSuccessListener { uri ->
+                    Log.d(TAG, "URL: $uri")
 
+                    //Upload image to firestore with path
+                    val task = hashMapOf(
+                        "title" to binding.titulo.text.toString(),
+                        "description" to binding.descripcion.text.toString(),
+                        "downloadUrl" to uri.toString()
+                    )
 
-    private fun compressFile(imageBitmap: Bitmap?) {
-        val filename = "img"+binding.titulo
-        val file = File(requireActivity().getExternalFilesDir(null), filename)
-        val outputStream = FileOutputStream(file)
-        imageBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        outputStream.close()
-        Log.d(TAG,file.toString())
-        val imageRef = storageRef.child("images/$filename")
-        val uploadTask = imageRef.putFile(Uri.fromFile(file))
-
-
-        uploadTask.continueWithTask { task ->
-            if (!task.isSuccessful) {
-                task.exception?.let {
-                    throw it
-                }
-            }
-            imageRef.downloadUrl
-
-        }.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val downloadUri = task.result
-                Log.d(TAG, "File uploaded successfully: $downloadUri")
-                val map = HashMap<String, Any > ()
-                map["picture"] = downloadUri
-
-                firebaseFirestore.collection("Images").add(map).addOnCompleteListener { firestoreTask ->
-                    if (firestoreTask.isSuccessful){
-                        Log.i(TAG,"Se hizo exitosamente")
-
-                        db.collection("Tasks").document(
-                            binding.titulo.text.toString()).set(
-                            hashMapOf("nombre" to binding.titulo.text.toString(),
-                                "descripcion" to binding.descripcion.text.toString(),
-                                "Path" to downloadUri.toString())
-                        )
-                    } else {
-                        Log.i(TAG,"Error en la subida de los datos")
-                    }
-
-
-
-                    binding.imageView.setImageResource(R.drawable.ic_success)
-
-                }
-            } else {
-                Log.e(TAG, "Failed to upload file.", task.exception)
-            }
-        }
-    }
-
-    private fun uploadImage(){
-        storageRef = storageRef.child(System.currentTimeMillis().toString())
-        imageUri?.let {
-            storageRef.putFile(it).addOnCompleteListener{ task ->
-                if (task.isSuccessful){
-                    storageRef.downloadUrl.addOnSuccessListener { uri ->
-                        val map = HashMap<String, Any > ()
-                        map["picture"] = uri.toString()
-
-                        firebaseFirestore.collection("Images").add(map).addOnCompleteListener { firestoreTask ->
-                            if (firestoreTask.isSuccessful){
-                                Log.i(TAG, "Se hizo exitosamente$uri")
-
-                                db.collection("Tasks").document(
-                                    binding.titulo.text.toString()).set(
-                                    hashMapOf("nombre" to binding.titulo.text.toString(),
-                                        "descripcion" to binding.descripcion.text.toString(),
-                                        "Path" to uri.toString())
-                                )
-                            } else {
-                                Log.i(TAG,"Error en la subida de los datos")
-                            }
-
-
-
-                            binding.imageView.setImageResource(R.drawable.ic_success)
-
+                    firebaseFirestore.collection("Tasks").document("task"+binding.titulo.text.toString())
+                        .set(task)
+                        .addOnSuccessListener {
+                            Toast.makeText(requireActivity(),"Guardado exitosamente",Toast.LENGTH_LONG).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(TAG, "Error adding document", e)
                         }
 
-                    }
-                } else {
-                    Log.i(TAG,"Error al intentar manipular el archivo")
-                    binding.imageView.setImageResource(R.drawable.ic_success)
                 }
-
+            }.addOnFailureListener { exception ->
+                Log.e(TAG, "Error uploading image", exception)
             }
         }
     }
