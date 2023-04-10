@@ -13,24 +13,8 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titulo" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/titulo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#24b9cc"
-        android:text="Task title"
-        android:elevation="4dp"
-        android:fontFamily="@font/montserrat_bold"
-        android:letterSpacing=".2"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="8sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints" />
 
 
 
@@ -40,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:layout_marginBottom="32dp"
-        android:src="@drawable/ic_add"
+        android:src="@drawable/ic_addd"
         app:backgroundTint="#4ad295"
         app:elevation="8dp"
         app:fabSize="normal"

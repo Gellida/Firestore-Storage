@@ -30,17 +30,37 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+    style="@style/ThemeOverlay.Material3.AutoCompleteTextView.OutlinedBox.Dense"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="10dp"
+    android:layout_marginHorizontal="20dp">
+    <com.google.android.material.textfield.TextInputEditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/desc"
+        android:hint="Descripcion"/>
+
+</com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
         style="@style/ThemeOverlay.Material3.AutoCompleteTextView.OutlinedBox.Dense"
+        android:id="@+id/photo_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:layout_marginHorizontal="20dp">
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/desc"
-            android:hint="Descripcion"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp"/>
+
+
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="20dp"
+        android:text="Agregar foto"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save"

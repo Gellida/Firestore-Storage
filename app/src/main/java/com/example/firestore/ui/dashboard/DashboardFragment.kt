@@ -85,6 +85,7 @@ class DashboardFragment : Fragment() {
                 Toast.makeText(requireContext(),it.message,Toast.LENGTH_LONG).show()
                 return@addSnapshotListener
             }
+            /*
             querySnapshot?.let {
                 val sb = StringBuilder()
                 for (document in it){
@@ -92,62 +93,22 @@ class DashboardFragment : Fragment() {
                     sb.append("$task\n")
                 }
                 binding.titulo.text = sb.toString()
-            }
-        }
-    }
-
-    private fun getTasks() = CoroutineScope(Dispatchers.IO).launch {
-        val TodoTaskRef = firebaseFirestore.collection("Todo")
-        try {
-            val querySnapshot = TodoTaskRef.get().await()
-            val sb = StringBuilder()
-            for (document in querySnapshot.documents){
-                val task = document.toObject(Task::class.java)
-                sb.append("$task\n")
-            }
-            withContext(Dispatchers.Main){
-                binding.titulo.text = sb.toString()
-            }
-        } catch (e: Exception){
-            withContext(Dispatchers.Main){
-                Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-
-        /*
-        @SuppressLint("NotifyDataSetChanged")
-    private fun getImages(){
-
-        firebaseFirestore.collection("Images")
-            .get().addOnSuccessListener {
-                for (i in it){
-                    mList.add(i.data["downloadUrl"].toString())
-                }
-                adapter.notifyDataSetChanged()
-            }
-
-
-         /*
-        firebaseFirestore.collection("Tasks")
-            .get().addOnSuccessListener {
-                val taskList = mutableListOf<Task>()
-                Log.i(TAG,it.toString())
-
-                for (i in it){
-                    val task = i.toObject(Task::class.java)
+            }*/
+            querySnapshot?.let {
+                val taskList = ArrayList<Task>()
+                for (document in it){
+                    val task = document.toObject(Task::class.java)
                     taskList.add(task)
                 }
-                adapter.updateData(taskList)
+                binding.recyclerView.adapter = TaskAdapter(taskList)
             }
-        */
-
+        }
     }
+
 
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }*/
+    }
 }
