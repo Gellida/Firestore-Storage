@@ -34,25 +34,42 @@ class TaskAdapter(private var taskList: MutableList<Task>) :
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        val imageRef = storageRef.child("camera/${UUID.randomUUID()}.jpg")
-            val task = taskList[position]
-            holder.binding.title.text = task.title
-            holder.binding.description.text = task.description
 
-            val gs = holder.binding.imagePreview
-           val gsReference = Firebase.storage.getReferenceFromUrl("gs://$bucketName"+task.photoURL)
-            Log.i("Eminem","Linea: "+task.photoURL)
-            Log.i("Eminem", "gs://$bucketName"+task.photoURL)
+        val task = taskList[position]
+        holder.binding.title.text = task.title
+        holder.binding.description.text = task.description
 
-            gsReference.downloadUrl
-                .addOnSuccessListener { uri ->
-                    Picasso.get().load(uri).into(gs)
-                }
+        val gs = holder.binding.imagePreview
+        val gsReference = Firebase.storage.getReferenceFromUrl("gs://$bucketName"+task.photoURL)
+
+
+
+        val imageRef = storageRef.bucket
+
+        Log.i("imageref", imageRef.toString())
+        Log.i("gs", gsReference.toString())
+
+        gsReference.downloadUrl
+            .addOnSuccessListener { uri ->
+                Picasso.get().load(uri).into(gs)
+            }
             .addOnFailureListener { exception ->
 
             }
-
-    }
+            /*
+        val photoUrl = task.photoURL
+        if (photoUrl.isNotEmpty()) {
+            val storageReference = Firebase.storage.getReferenceFromUrl(photoUrl)
+            Log.i("TaskAdapter", storageReference.toString())
+            storageReference.downloadUrl
+                .addOnSuccessListener { uri ->
+                    Picasso.get().load(uri).into(holder.binding.imagePreview)
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("TaskAdapter", "Error loading image", exception)
+                }
+        }*/
+}
 
     fun updateData(newList: MutableList<Task>) {
         taskList = newList

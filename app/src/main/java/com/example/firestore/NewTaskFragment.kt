@@ -17,6 +17,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.graphics.get
 import androidx.core.view.drawToBitmap
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -76,10 +77,9 @@ class NewTaskFragment : BottomSheetDialogFragment() {
                 // aquí puedes hacer algo con la foto, como mostrarla en un ImageView
                 //taskViewModel.photoURL.value = binding.photoUrl.toString()
                 binding.photoUrl.text = photoBitmap.toString()
-                /*
-                lifecycleScope.launch {
-                    uploadImageToFirebase(photoBitmap)
-                }*/
+
+                Log.i("BITMAP", photoBitmap.byteCount.toString())
+
 
             }
 

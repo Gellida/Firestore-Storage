@@ -37,6 +37,7 @@ class MyService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        stopSelf()
     }
     override fun onBind(p0: Intent?): IBinder? {
         return null
