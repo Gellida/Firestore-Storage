@@ -1,27 +1,18 @@
 package com.example.firestore.ui.dashboard
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.firestore.NewTaskFragment
-import com.example.firestore.TaskViewModel
+import com.example.firestore.ui.task.TaskViewModel
 import com.example.firestore.databinding.FragmentDashboardBinding
-import com.example.firestore.databinding.FragmentNewTaskBinding
+import com.example.firestore.ui.task.NewTaskFragment
+import com.example.firestore.ui.task.TaskAdapter
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 class DashboardFragment : Fragment() {
 
@@ -30,9 +21,7 @@ class DashboardFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var firebaseFirestore : FirebaseFirestore
     private var mList = mutableListOf<String>()
-    private lateinit var adapter: ImagesAdapter
     private val TAG = "DashboardFragment"
-
     private lateinit var taskViewModel: TaskViewModel
 
 
@@ -74,8 +63,6 @@ class DashboardFragment : Fragment() {
         firebaseFirestore = FirebaseFirestore.getInstance()
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        adapter = ImagesAdapter(mList)
-        binding.recyclerView.adapter = adapter
 
     }
     private fun TaskRealtimeUpdates(){
@@ -85,15 +72,7 @@ class DashboardFragment : Fragment() {
                 Toast.makeText(requireContext(),it.message,Toast.LENGTH_LONG).show()
                 return@addSnapshotListener
             }
-            /*
-            querySnapshot?.let {
-                val sb = StringBuilder()
-                for (document in it){
-                    val task = document.toObject(Task::class.java)
-                    sb.append("$task\n")
-                }
-                binding.titulo.text = sb.toString()
-            }*/
+
             querySnapshot?.let {
                 val taskList = ArrayList<Task>()
                 for (document in it){

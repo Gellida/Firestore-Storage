@@ -1,4 +1,4 @@
-package com.example.firestore
+package com.example.firestore.ui.task
 
 import android.app.appsearch.AppSearchResult.RESULT_OK
 import android.content.Context
@@ -51,12 +51,7 @@ class NewTaskFragment : BottomSheetDialogFragment() {
         taskViewModel = ViewModelProvider(activity).get(TaskViewModel::class.java)
 
         binding.btnPhoto.setOnClickListener {
-            /*
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
-             */
             takePhoto()
-
         }
         binding.btnSave.setOnClickListener{
             uploadImageToFirebase(binding.photoUrl.drawToBitmap())

@@ -1,4 +1,4 @@
-package com.example.firestore
+package com.example.firestore.ui.task
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

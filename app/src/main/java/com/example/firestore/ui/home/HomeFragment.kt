@@ -20,10 +20,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.firestore.databinding.FragmentHomeBinding
-import com.example.firestore.ui.dashboard.DriveService
-import com.example.firestore.ui.dashboard.MyService
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -124,6 +120,7 @@ class HomeFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+
             val imageBitmap = data?.extras?.get("data") as Bitmap
             // Aquí puedes guardar la imagen en el Storage de Firebase
             binding.ivCamera.setImageBitmap(imageBitmap)
@@ -207,6 +204,7 @@ class HomeFragment : Fragment() {
             requireActivity().startService(intent)
         }
     }
+
 
 
 }

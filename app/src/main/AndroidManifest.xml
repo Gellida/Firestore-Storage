@@ -26,8 +26,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".ui.dashboard.MyService"/>
-        <service android:name=".ui.dashboard.DriveService"/>
+        <service android:name=".ui.home.MyService"/>
+        <service android:name=".ui.home.DriveService"/>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
