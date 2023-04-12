@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NewTaskFragment">
+    tools:context=".ui.task.NewTaskFragment">
 
 
     <TextView
@@ -13,8 +13,7 @@
         android:text="Nueva tarea"
         android:textSize="30sp"
         android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        style="@style/TextAppearance.AppCompat.Title"/>
+        android:layout_marginStart="20dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/ThemeOverlay.Material3.AutoCompleteTextView.OutlinedBox.Dense"
@@ -51,10 +50,7 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginVertical="10dp"/>
 
-
-
-
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/btn_photo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,12 +58,20 @@
         android:layout_marginHorizontal="20dp"
         android:text="Agregar foto"/>
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/btn_save"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginHorizontal="20dp"
         android:text="Guardar"/>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="80dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_drive"
+        android:visibility="invisible" />
 
 </LinearLayout>

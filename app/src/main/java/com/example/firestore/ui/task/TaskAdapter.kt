@@ -36,11 +36,11 @@ class TaskAdapter(private var taskList: MutableList<Task>) :
         holder.binding.description.text = task.description
 
         val gs = holder.binding.imagePreview
-        val gsReference = Firebase.storage.getReferenceFromUrl("gs://$bucketName"+task.photoURL)
+        val gsReference = Firebase.storage.getReferenceFromUrl("gs://$bucketName/${task.photoURL}")
 
 
 
-        val imageRef = storageRef.bucket
+        val imageRef = FirebaseStorage.getInstance().reference.bucket
 
         Log.i("imageref", imageRef.toString())
         Log.i("gs", gsReference.toString())

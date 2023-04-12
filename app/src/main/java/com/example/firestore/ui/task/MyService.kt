@@ -1,15 +1,23 @@
-package com.example.firestore.ui.home
+package com.example.firestore.ui.task
 
 import android.app.Service
 import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Toast
 import com.example.firestore.databinding.FragmentHomeBinding
+import com.example.firestore.databinding.FragmentNewTaskBinding
+import com.example.firestore.ui.dashboard.Task
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.util.*
 
 val tag = "MyServicee"
@@ -17,14 +25,14 @@ val tag = "MyServicee"
 class MyService : Service() {
     private lateinit var storageRef: StorageReference
     private lateinit var firebaseFirestore: FirebaseFirestore
-    private lateinit var binding : FragmentHomeBinding
+    private lateinit var binding : FragmentNewTaskBinding
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Toast.makeText(applicationContext, "Entra al intent", Toast.LENGTH_LONG).show()
 
         storageRef = FirebaseStorage.getInstance().reference.child("Images")
         firebaseFirestore = FirebaseFirestore.getInstance()
-
+        binding = FragmentNewTaskBinding.inflate(LayoutInflater.from(this))
         val uri = intent?.getParcelableExtra<Uri>("imageUri")
 
 
@@ -44,6 +52,8 @@ class MyService : Service() {
         return null
     }
     private fun uploadImageToFirebase(uri: Uri) {
+        Log.i("firebase","Entrando a función imagetofirebase")
+
         // Crea una referencia al archivo en el almacenamiento de Firebase
         val imageRef = storageRef.child("camera/${UUID.randomUUID()}.jpg")
 
@@ -56,38 +66,16 @@ class MyService : Service() {
             taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
                 val downloadUrl = uri.toString()
                 // Guarda la URL de descarga en Firestore
-                val imageUrl = downloadUrl.toString()
-                val task = hashMapOf(
-                    "title" to binding.titulo.text.toString(),
-                    "description" to binding.descripcion.text.toString(),
-                    "downloadUrl" to imageUrl
-                )
-                val image = hashMapOf(
-                    "title" to binding.titulo.text.toString(),
-                    "description" to binding.descripcion.text.toString(),
-                    "downloadUrl" to imageUrl
-                )
+                val title = binding.title.text.toString()
+                val description = binding.desc.text.toString()
+                val uri = uri.toString()
 
-                firebaseFirestore.collection("Tasks").document(System.currentTimeMillis().toString())
-                    .set(task)
-                    .addOnSuccessListener {
-                        Toast.makeText(
-                            applicationContext,
-                            "Guardado exitosamente",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w(tag, "Error adding document", e)
-                    }
-                firebaseFirestore.collection("Images").document(binding.titulo.text.toString()+System.currentTimeMillis())
-                    .set(image)
-                    .addOnSuccessListener {
-                        Toast.makeText(applicationContext, "Guardado en images", Toast.LENGTH_LONG).show()
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w(tag, "Error adding document", e)
-                    }
+                val task = Task(title, description, uri)
+                binding.title.setText("")
+                binding.desc.setText("")
+                binding.photoUrl.text = ""
+                saveTask(task)
+
             }?.addOnFailureListener { exception ->
                 Log.w(
                     tag,
@@ -97,6 +85,21 @@ class MyService : Service() {
             }
         }.addOnFailureListener { exception ->
             Log.w(tag, "Error uploading image", exception)
+        }
+    }
+
+    private fun saveTask(task: Task) = CoroutineScope(Dispatchers.IO).launch {
+        val TodoTaskRef = firebaseFirestore.collection("Todo")
+        try {
+            TodoTaskRef.add(task).await()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(applicationContext, "Task saved successfully!", Toast.LENGTH_LONG)
+                    .show()
+            }
+        } catch (e: Exception){
+            withContext(Dispatchers.Main) {
+                Toast.makeText(applicationContext, e.message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
