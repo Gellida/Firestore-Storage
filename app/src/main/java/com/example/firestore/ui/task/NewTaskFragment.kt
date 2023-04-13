@@ -49,7 +49,20 @@ class NewTaskFragment : BottomSheetDialogFragment() {
             resultLauncher.launch("image/*")
         }
         binding.btnSave.setOnClickListener{
-            uploadImageDriveToStorage()
+            if (imageUri != null) {
+                uploadImageDriveToStorage()
+            } else {
+                taskViewModel.title.value = binding.title.text.toString()
+                taskViewModel.desc.value = binding.desc.text.toString()
+                val title = binding.title.text.toString()
+                val description = binding.desc.text.toString()
+
+                val task = Task(title, description, "/camera/no_image.png")
+                binding.title.setText("")
+                binding.desc.setText("")
+                binding.photoUrl.text = ""
+                saveTask(task)
+            }
         }
     }
 
