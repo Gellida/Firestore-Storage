@@ -53,6 +53,8 @@ class HomeFragment : Fragment() {
 
         return root
     }
+
+
     private fun initVars() {
         storageRef = FirebaseStorage.getInstance().reference.child("Images")
         firebaseFirestore = FirebaseFirestore.getInstance()
