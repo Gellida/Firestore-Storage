@@ -50,18 +50,11 @@ class NewTaskFragment : BottomSheetDialogFragment() {
         }
         binding.btnSave.setOnClickListener{
             if (imageUri != null) {
-                uploadImageDriveToStorage()
+                CoroutineScope(Dispatchers.IO).launch {
+                    uploadImageDriveToStorage()
+                }
             } else {
-                taskViewModel.title.value = binding.title.text.toString()
-                taskViewModel.desc.value = binding.desc.text.toString()
-                val title = binding.title.text.toString()
-                val description = binding.desc.text.toString()
-
-                val task = Task(title, description, "/camera/no_image.png")
-                binding.title.setText("")
-                binding.desc.setText("")
-                binding.photoUrl.text = ""
-                saveTask(task)
+                saveTaskWithoutImage()
             }
         }
     }
@@ -77,8 +70,6 @@ class NewTaskFragment : BottomSheetDialogFragment() {
             if (result.resultCode == RESULT_OK) {
                 val data = result.data
                 val photoBitmap = data?.extras?.get("data") as Bitmap
-                // aquí puedes hacer algo con la foto, como mostrarla en un ImageView
-                //taskViewModel.photoURL.value = binding.photoUrl.toString()
                 binding.photoUrl.text = photoBitmap.toString()
 
                 Log.i("BITMAP", photoBitmap.byteCount.toString())
@@ -113,17 +104,28 @@ class NewTaskFragment : BottomSheetDialogFragment() {
             }
         }
     }
+    private fun saveTaskWithoutImage(){
+        taskViewModel.title.value = binding.title.text.toString()
+        taskViewModel.desc.value = binding.desc.text.toString()
+        val title = binding.title.text.toString()
+        val description = binding.desc.text.toString()
+
+        val task = Task(title, description, "/camera/no_image.png")
+        binding.title.setText("")
+        binding.desc.setText("")
+        binding.photoUrl.text = ""
+        CoroutineScope(Dispatchers.IO).launch {
+            saveTask(task)
+        }
+    }
 
     private fun uploadImageDriveToStorage() {
         if (imageUri != null) {
-            // Create a reference to the file in Firebase Storage
-
             val imageRef = storageRef.child("camera/${UUID.randomUUID()}.jpg")
 
-            // Upload the file to Firebase Storage
             val uploadTask = imageRef.putFile(imageUri!!)
             uploadTask.addOnSuccessListener { taskSnapshot ->
-                // If the upload is successful, get the download URL and save it to Firestore
+
                 imageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
                     taskViewModel.title.value = binding.title.text.toString()
                     taskViewModel.desc.value = binding.desc.text.toString()
@@ -138,7 +140,6 @@ class NewTaskFragment : BottomSheetDialogFragment() {
                     saveTask(task)
                 }
             }.addOnFailureListener {
-                // If there is an error with the upload, display an error message
                 Toast.makeText(requireContext(), "Error al subir la imagen.", Toast.LENGTH_SHORT).show()
             }
         }
