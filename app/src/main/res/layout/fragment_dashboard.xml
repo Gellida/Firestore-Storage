@@ -11,9 +11,34 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:shimmer_auto_start="true"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/view_loading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@+id/recycler_view"
+            app:layout_constraintTop_toTopOf="@+id/recycler_view">
+
+            <include layout="@layout/task_item_shimmer"/>
+            <include layout="@layout/task_item_shimmer"/>
+            <include layout="@layout/task_item_shimmer"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
 
 
 
@@ -34,5 +59,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_scrollFlags="scroll|enterAlways"
         app:maxImageSize="32dp"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white"
+        android:contentDescription="@string/agregar_tarea" />
 </androidx.constraintlayout.widget.ConstraintLayout>

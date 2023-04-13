@@ -1,10 +1,13 @@
 package com.example.firestore.ui.dashboard
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -16,6 +19,7 @@ import com.example.firestore.ui.task.NewTaskFragment
 import com.example.firestore.ui.task.TaskAdapter
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.delay
 
 class DashboardFragment : Fragment() {
 
@@ -47,6 +51,9 @@ class DashboardFragment : Fragment() {
         }
 
         TaskRealtimeUpdates()
+        Handler(Looper.getMainLooper()).postDelayed({
+            showData()
+        }, 2000)
 
         binding.fabAdd.setOnClickListener {
             NewTaskFragment().show(parentFragmentManager,"newTaskTag")
@@ -117,6 +124,11 @@ class DashboardFragment : Fragment() {
                 adapter.updateData(taskList)
             }
         }
+    }
+    private fun showData(){
+        binding.viewLoading.isVisible = false
+        binding.recyclerView.isVisible = true
+
     }
 
 
